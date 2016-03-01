@@ -57,10 +57,27 @@ checkins =  pd.read_csv('checkins.dat', sep='|', header=None, skiprows=2)
 checkins.columns = ["id","user_id" , "venue_id", "latitude", "longitude","created_at"]
 checkins.shape
 
-### trying to convert both IDs columns to string...
+### trying to convert both IDs columns to string
+# first try:
 only_chicago_venues['id_str'] = only_chicago_venues['id'].astype('str')#.values
 checkins['venue_id_str'] = checkins['venue_id'].map('{:.0f}'.format)
 #checkins['venue_id'] = checkins['venue_id'].astype(basestring)
 match = pd.merge(only_chicago_venues, checkins, left_on='id_str', right_on='venue_id_str')
 match.shape
+
+# second try:
+def clean_and_str(x):
+    try:
+        x = str(int(x))
+        x = x.strip()
+    except ValueError:
+        x = x
+    return x
+    
+only_chicago_venues['id_str'] = only_chicago_venues['id'].apply(clean_and_str)
+checkins['venue_id_str'] = checkins['venue_id'].apply(clean_and_str)
+
+match = pd.merge(only_chicago_venues, checkins, left_on='id_str', right_on='venue_id_str')
+match.shape
+
 
